@@ -12,11 +12,11 @@
  * Source of truth: .agent/architecture.md § Token Verification
  * Rules: .agent/rules.md § Firebase (Server / Admin SDK)
  *
- * Phase 2 will add: role verification from Firestore, requireAdmin() helper.
+ * Phase 2: Includes role verification from Firestore and requireAdmin() helper.
  */
 
 import type { H3Event } from 'h3'
-import { useAdminAuth } from './firebase-admin'
+import { useAdminAuth, useAdminDb } from './firebase-admin'
 import type { DecodedIdToken } from 'firebase-admin/auth'
 
 /**
@@ -48,4 +48,24 @@ export async function verifyToken(event: H3Event): Promise<DecodedIdToken> {
       message: 'Unauthorized',
     })
   }
+}
+
+/**
+ * Verify ID Token and ensure the user has the 'admin' role in Firestore.
+ * Throws a 403 H3 error if the user is not an admin.
+ */
+export async function requireAdmin(event: H3Event): Promise<DecodedIdToken> {
+  const decodedToken = await verifyToken(event)
+
+  const db = useAdminDb()
+  const userDoc = await db.collection('users').doc(decodedToken.uid).get()
+
+  if (!userDoc.exists || userDoc.data()?.role !== 'admin') {
+    throw createError({
+      statusCode: 403,
+      message: 'Forbidden: Admin access required',
+    })
+  }
+
+  return decodedToken
 }

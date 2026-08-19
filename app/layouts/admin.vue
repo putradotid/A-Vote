@@ -1,3 +1,13 @@
+<script setup lang="ts">
+const auth = useAuth()
+const router = useRouter()
+
+const handleLogout = async () => {
+  await auth.logout()
+  router.push('/admin/login')
+}
+</script>
+
 <template>
   <div class="min-h-screen bg-background flex flex-col">
     <!-- Header -->
@@ -8,9 +18,8 @@
           <div class="text-small text-text-muted hidden sm:block">| Admin</div>
         </div>
         <div class="flex items-center gap-4">
-          <!-- User Profile Stub -->
-          <div class="text-small text-text-secondary">Admin User</div>
-          <button class="text-small text-text-muted hover:text-danger transition-colors">Logout</button>
+          <div class="text-small text-text-secondary">{{ auth.user.value?.email || 'Admin User' }}</div>
+          <button @click="handleLogout" class="text-small text-text-muted hover:text-danger transition-colors">Logout</button>
         </div>
       </div>
     </header>
