@@ -1,0 +1,127 @@
+/*
+ * A-Vote — Global CSS
+ * Tailwind CSS directives + Inter font import + base design tokens
+ */
+
+/* Google Fonts — Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    color: #0F172A;
+    background-color: #F8FAFC;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  /* Default focus visible ring using primary color */
+  :focus-visible {
+    outline: 2px solid #2563EB;
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* ── Button ─────────────────────────────────────────────── */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 font-medium
+           rounded-button px-4 py-2 transition-all duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary text-white hover:bg-primary-dark
+           focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply btn bg-transparent border border-border text-text-primary
+           hover:bg-background
+           focus-visible:ring-2 focus-visible:ring-border focus-visible:ring-offset-2;
+  }
+
+  .btn-danger {
+    @apply btn bg-danger text-white hover:bg-red-700
+           focus-visible:ring-2 focus-visible:ring-danger focus-visible:ring-offset-2;
+  }
+
+  /* ── Card ───────────────────────────────────────────────── */
+  .card {
+    @apply bg-surface border border-border rounded-card shadow-card;
+  }
+
+  .card-interactive {
+    @apply card transition-all duration-150
+           hover:shadow-card-hover hover:border-primary cursor-pointer;
+  }
+
+  /* ── Input ──────────────────────────────────────────────── */
+  .input {
+    @apply w-full bg-surface border border-border rounded-input
+           px-3 py-2 text-body text-text-primary
+           placeholder:text-text-muted
+           focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20
+           disabled:bg-background disabled:text-text-muted disabled:cursor-not-allowed
+           transition-colors duration-150;
+  }
+
+  .input-error {
+    @apply input border-danger focus:border-danger focus:ring-danger/20;
+  }
+
+  /* ── Badge ──────────────────────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-badge text-caption font-medium;
+  }
+
+  /* Election state badges */
+  .badge-draft {
+    @apply badge bg-border text-text-muted;
+  }
+
+  .badge-scheduled {
+    @apply badge bg-amber-50 text-warning border border-amber-200;
+  }
+
+  .badge-active {
+    @apply badge bg-green-50 text-success border border-green-200;
+  }
+
+  .badge-ended {
+    @apply badge bg-slate-50 text-text-secondary border border-border;
+  }
+
+  .badge-result-published {
+    @apply badge bg-sky-50 text-info border border-sky-200;
+  }
+
+  .badge-cancelled {
+    @apply badge bg-red-50 text-danger border border-red-200;
+  }
+
+  /* ── Label ──────────────────────────────────────────────── */
+  .label {
+    @apply block text-small font-medium text-text-secondary mb-1;
+  }
+
+  /* ── Form error message ─────────────────────────────────── */
+  .field-error {
+    @apply text-caption text-danger mt-1;
+  }
+
+  /* ── Page container ─────────────────────────────────────── */
+  .page-container {
+    @apply max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+  }
+}

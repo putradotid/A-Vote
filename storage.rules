@@ -1,0 +1,12 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Phase 1 stub
+    // Full security rules will be implemented in Phase 5
+    // Default deny all client access. Admin SDK bypasses this.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

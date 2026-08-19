@@ -24,6 +24,10 @@ Notes:
 - Admin users have `nim: null` and `dateOfBirthHash: null`.
 - NIM must be unique across all voter accounts (enforced server-side).
 - `uid` is the Firestore document ID, identical to the Firebase Auth UID.
+- `role == 'voter'` identifies a student account and does NOT grant
+  election-specific voting eligibility.
+- Election-specific voting eligibility is determined by the `voters`
+  collection.
 
 ---
 
@@ -108,7 +112,7 @@ different elections.
 
 | Field | Type | Description |
 |---|---|---|
-| `id` | string | Auto-generated document ID. |
+| `id` | string | Deterministic document ID derived from `electionId` and `userId`. |
 | `electionId` | string | The election this voter is registered for. |
 | `userId` | string | The Firebase Auth UID of the eligible voter. |
 | `hasVoted` | boolean | Whether this voter has already cast a ballot in this election. Default: false. |
@@ -124,8 +128,8 @@ Notes:
 
 ## Collection: ballots
 
-Stores cast ballots. Contains NO voter identity. Voter privacy is maintained
-by design.
+Stores cast ballots. Contains NO direct voter identity.
+Voter eligibility and ballot data are stored separately.
 
 | Field | Type | Description |
 |---|---|---|

@@ -69,7 +69,9 @@ Browser
           │
           ├── Look up user by NIM in Firestore (server-side)
           ├── Compare SHA-256(dateOfBirth) against stored dateOfBirthHash
-          ├── Verify user role == 'voter'
+          ├── Verify that the student identity is authorized to authenticate.
+          │
+          ├── Election-specific voting eligibility is checked separately through the voters collection.
           │
           └── Firebase Admin SDK
                   └── createCustomToken(uid, { role: 'voter' })
@@ -87,6 +89,22 @@ Browser
 - The custom token embeds the role claim. Role must be re-verified server-side
   on every sensitive request (custom claim is signed by Firebase, but still
   re-verified via Admin SDK token verification).
+- The `/api/auth/student` endpoint must implement rate limiting.
+- Authentication failures must use generic error messages and must not reveal whether a NIM exists.
+- The endpoint must not expose student identity data or `dateOfBirthHash`.
+
+### Student Identity Provisioning
+
+Student identity records are provisioned by the system administrator or
+authorized institutional data source.
+
+Student identity verification and election eligibility are separate.
+
+A student identity record may exist before the student is registered
+as an eligible voter for a specific election.
+
+The system must associate the student identity with a Firebase Authentication
+user account before the account can authenticate.
 
 ### Admin Authentication
 
@@ -99,8 +117,11 @@ Browser
                   └── Firebase ID Token
 ```
 
-Admin accounts are provisioned manually. Admin role is stored in Firestore
-`users/{uid}.role` and may also be set as a Firebase Custom Claim for efficiency.
+Admin role stored in `users/{uid}.role` is the authoritative source
+for authorization.
+
+Firebase Custom Claims may be used as a performance optimization,
+but must not override the authoritative Firestore role.
 
 ### Token Verification (all server requests)
 
@@ -118,7 +139,7 @@ Every Nuxt Server API route that performs a privileged operation must:
 
 ### Permitted (direct Firestore client reads, subject to Security Rules)
 
-- `elections/{id}` — read election metadata (not raw status transitions)
+- `elections/{id}` — read only client-safe election metadata and computed/public status
 - `elections/{id}/candidates` — read candidate list
 - Own `voters` record — read own `hasVoted` status for a given election
 - Publicly visible fields on `users/{uid}` (own record only)
@@ -176,17 +197,23 @@ Valid administrative transitions:
 
 | From | To | Condition |
 |---|---|---|
-| DRAFT | SCHEDULED | Set valid startAt, endAt, resultPublishedAt |
-| DRAFT | CANCELLED | Admin explicit cancel |
-| SCHEDULED | CANCELLED | Admin explicit cancel (before startAt) |
-| SCHEDULED | DRAFT | Admin resets dates (sets them to null) |
+| DRAFT | SCHEDULED | Admin provides valid `startAt`, `endAt`, and `resultPublishedAt` where `startAt < endAt <= resultPublishedAt` |
+| DRAFT | CANCELLED | Admin explicitly cancels the election |
+| SCHEDULED | DRAFT | Admin resets the election to draft before `startAt` and removes the scheduling timestamps |
+| SCHEDULED | CANCELLED | Admin explicitly cancels the election before `startAt` |
 
 Transitions that are prevented:
-- ACTIVE → any manual state change (election is live)
-- ENDED → any manual state change (election closed)
+
+- ACTIVE → any manual state change
+- ENDED → any manual state change
 - RESULT_PUBLISHED → any manual state change
 - CANCELLED → any other state
-
+- SCHEDULED → ACTIVE by manual action; ACTIVE is determined automatically when `now >= startAt`
+- ACTIVE → ENDED by manual action; ENDED is determined automatically when `now >= endAt`
+- ENDED → RESULT_PUBLISHED by manual action; RESULT_PUBLISHED is determined automatically when `now >= resultPublishedAt`
+- `startAt`, `endAt`, and `resultPublishedAt` must satisfy `startAt < endAt <= resultPublishedAt`
+- `startAt` and `endAt` cannot be modified once the election becomes ACTIVE
+- `resultPublishedAt` cannot be set to a time before `endAt`
 ---
 
 ## Voting Transaction
@@ -201,7 +228,7 @@ Client
           └── Server (Nuxt API Route)
                   │
                   ├── 1. Verify ID Token → get uid (reject if invalid)
-                  ├── 2. Verify user role == 'voter' (reject if not voter)
+                  ├── 2. Verify authenticated user has the voter application role (reject if not a student voter account)
                   │
                   └── Firestore Transaction (Admin SDK)
                           │

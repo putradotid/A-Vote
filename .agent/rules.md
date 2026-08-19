@@ -68,6 +68,11 @@
 7. The client must never receive or store raw NIM verification logic or
    the dateOfBirthHash from Firestore.
 
+Notes:
+- The student authentication endpoint must implement rate limiting.
+- Authentication failures must use generic error messages and must not reveal
+  whether a NIM exists.
+
 ---
 
 ## Voting
@@ -80,7 +85,7 @@
 4. Vote submission must go through `POST /api/vote` (Nuxt Server API).
 5. The server API performs ALL of the following checks atomically:
    a. Verify Firebase ID Token → get uid.
-   b. Verify user role == 'voter'.
+   b. Verify authenticated user has the voter application role.
    c. Verify voter record exists for (uid, electionId).
    d. Verify voters.hasVoted == false.
    e. Verify election is not CANCELLED.
@@ -150,7 +155,7 @@ These rules must be implemented in `firestore.rules`:
 | Collection | Read | Write |
 |---|---|---|
 | `users` | Own record only (voter); all records (admin) | Server only (Admin SDK) |
-| `elections` | All authenticated users | Server only (Admin SDK) |
+| `elections` | Authenticated users may read permitted election data | Server only (Admin SDK) |
 | `elections/{id}/candidates` | All authenticated users | Server only (Admin SDK) |
 | `voters` | Own records only (voter); all records (admin) | Server only (Admin SDK) |
 | `ballots` | **DENIED for all clients** | **DENIED for all clients** (server only via Admin SDK) |

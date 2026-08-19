@@ -53,7 +53,7 @@ Scale:
 |---|---|---|
 | DRAFT | Text Muted / Border | Neutral gray |
 | SCHEDULED | Warning | Yellow/amber |
-| ACTIVE | Success | Green |
+| ACTIVE | Success | Green — currently open for voting |
 | ENDED | Text Secondary | Gray |
 | RESULT_PUBLISHED | Info | Blue |
 | CANCELLED | Danger | Red |
@@ -157,7 +157,7 @@ Sidebar links: Dashboard, Elections, (contextual: Candidates, Voters, Results)
 6. If an election is not ACTIVE, the vote page must show the current state
    and explain why voting is unavailable.
 7. If results are not yet published, the result page must show an appropriate
-   waiting state with the scheduled publication time.
+   waiting state with the scheduled `resultPublishedAt` time.
 8. Error states must always be user-friendly (not raw technical errors).
 9. All form submissions must show loading state during the async operation.
 10. Responsive design is required. Mobile layout must be functional.
