@@ -1,10 +1,7 @@
 /*
  * A-Vote — Global CSS
- * Tailwind CSS directives + Inter font import + base design tokens
+ * Tailwind CSS directives + base design tokens
  */
-
-/* Google Fonts — Inter */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;

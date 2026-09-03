@@ -2,6 +2,7 @@
 export default defineNuxtConfig({
   modules: [
     '@nuxtjs/tailwindcss',
+    '@nuxtjs/google-fonts',
   ],
 
   devtools: { enabled: true },
@@ -32,6 +33,15 @@ export default defineNuxtConfig({
       firebaseMessagingSenderId: '',
       firebaseAppId: '',
     },
+  },
+
+  // Google Fonts (Optimized: only load Inter)
+  googleFonts: {
+    families: {
+      Inter: [400, 500, 600, 700],
+    },
+    download: true,
+    useStylesheet: false,
   },
 
   // TypeScript
