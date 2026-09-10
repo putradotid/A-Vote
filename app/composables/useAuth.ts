@@ -1,5 +1,6 @@
 import { ref, onMounted } from 'vue'
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged, type User as FirebaseUser } from 'firebase/auth'
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, signInWithCustomToken, type User as FirebaseUser } from 'firebase/auth'
+import type { StudentLoginResponse } from '~/types'
 
 export const useAuth = () => {
   const { $firebaseAuth } = useNuxtApp()
@@ -40,6 +41,36 @@ export const useAuth = () => {
     }
   }
 
+  // Student login
+  const studentLogin = async (nim: string, dateOfBirth: string) => {
+    try {
+      const response = await $fetch<StudentLoginResponse>('/api/auth/student', {
+        method: 'POST',
+        body: { nim, dateOfBirth },
+      })
+
+      const credential = await signInWithCustomToken($firebaseAuth, response.customToken)
+      user.value = credential.user
+      return { success: true }
+    } catch (error: unknown) {
+      let message = 'Login gagal. Periksa NIM dan Tanggal Lahir Anda.'
+
+      if (error && typeof error === 'object' && 'data' in error) {
+        const fetchError = error as { data?: { message?: string } }
+        if (fetchError.data?.message) {
+          message = fetchError.data.message
+        }
+      } else if (error instanceof Error) {
+        message = error.message
+      }
+
+      return {
+        success: false,
+        error: message,
+      }
+    }
+  }
+
   // Logout
   const logout = async () => {
     await signOut($firebaseAuth)
@@ -51,6 +82,7 @@ export const useAuth = () => {
     isReady,
     getIdToken,
     adminLogin,
+    studentLogin,
     logout,
   }
 }
