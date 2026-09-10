@@ -1,6 +1,20 @@
-export default defineNuxtRouteMiddleware((to, from) => {
-  // Voter role check (stubbed for Phase 1)
-  // Phase 2 will implement actual role checking from Firebase token/claims
-  // and redirect to /login if not a voter.
-  return
+export default defineNuxtRouteMiddleware(async (to, from) => {
+  if (import.meta.client) {
+    const auth = useAuth()
+
+    if (!auth.isReady.value) {
+      await new Promise<void>((resolve) => {
+        const unwatch = watch(auth.isReady, (ready) => {
+          if (ready) {
+            unwatch()
+            resolve()
+          }
+        })
+      })
+    }
+
+    if (!auth.user.value) {
+      return navigateTo('/login')
+    }
+  }
 })
