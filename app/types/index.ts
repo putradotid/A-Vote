@@ -179,3 +179,43 @@ export interface ApiError {
   statusCode: number
   message: string
 }
+
+// ─── Election Admin API Request/Response shapes ─────────────────────────────
+
+export interface ElectionListItem {
+  id: string
+  title: string
+  description: string
+  startAt: string | null
+  endAt: string | null
+  resultPublishedAt: string | null
+  status: ElectionAdminStatus
+  computedState: ElectionState
+  createdBy: string
+  createdAt: string
+}
+
+export interface ElectionListResponse {
+  elections: ElectionListItem[]
+}
+
+export interface ElectionDetailResponse {
+  election: ElectionListItem
+}
+
+export interface CreateElectionRequest {
+  title: string
+  description: string
+  startAt?: string | null
+  endAt?: string | null
+  resultPublishedAt?: string | null
+}
+
+export interface UpdateElectionRequest {
+  title?: string
+  description?: string
+  startAt?: string | null
+  endAt?: string | null
+  resultPublishedAt?: string | null
+  status?: ElectionAdminStatus
+}

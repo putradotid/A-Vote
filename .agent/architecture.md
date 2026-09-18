@@ -165,8 +165,11 @@ Every Nuxt Server API route that performs a privileged operation must:
 | POST | `/api/auth/student` | Student login via NIM + DOB; returns custom token | None |
 | POST | `/api/vote` | Submit ballot (atomic transaction) | Voter ID Token |
 | GET | `/api/results/[electionId]` | Get aggregate results for an election | ID Token (voter: after resultPublishedAt; admin: always) |
+| GET | `/api/admin/elections` | Get all elections | Admin ID Token |
 | POST | `/api/admin/elections` | Create election | Admin ID Token |
+| GET | `/api/admin/elections/[id]` | Get single election details | Admin ID Token |
 | PATCH | `/api/admin/elections/[id]` | Update election (dates, status) | Admin ID Token |
+| DELETE | `/api/admin/elections/[id]` | Delete election (DRAFT/CANCELLED only) | Admin ID Token |
 | POST | `/api/admin/elections/[id]/voters` | Add voter to election | Admin ID Token |
 | DELETE | `/api/admin/elections/[id]/voters/[vid]` | Remove voter from election | Admin ID Token |
 | POST | `/api/admin/elections/[id]/candidates` | Add candidate | Admin ID Token |
@@ -346,9 +349,12 @@ app/
 │   │   ├── results/[electionId].get.ts  # Result aggregation endpoint
 │   │   └── admin/
 │   │       ├── elections/
+│   │       │   ├── index.get.ts
 │   │       │   ├── index.post.ts
 │   │       │   └── [id]/
+│   │       │       ├── index.get.ts
 │   │       │       ├── index.patch.ts
+│   │       │       ├── index.delete.ts
 │   │       │       ├── voters/
 │   │       │       │   ├── index.post.ts
 │   │       │       │   └── [vid].delete.ts

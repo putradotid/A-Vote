@@ -33,14 +33,10 @@ export function computeElectionState(
   election: ElectionTimestamps,
   now: Date,
 ): ElectionState {
-  if (election.status === 'DRAFT') return 'DRAFT'
   if (election.status === 'CANCELLED') return 'CANCELLED'
 
-  // All remaining branches require valid timestamps.
-  // If an election is not DRAFT/CANCELLED, timestamps should always be set.
-  // Guard against null in case of data inconsistency.
+  // An election is in DRAFT state when scheduling timestamps are not set.
   if (!election.startAt || !election.endAt || !election.resultPublishedAt) {
-    // Treat missing timestamps as DRAFT (safe fallback)
     return 'DRAFT'
   }
 
@@ -75,12 +71,16 @@ export function validateElectionTimestamps(
   startAt: Date,
   endAt: Date,
   resultPublishedAt: Date,
+  now?: Date,
 ): { valid: true } | { valid: false; reason: string } {
+  if (now && startAt <= now) {
+    return { valid: false, reason: 'Waktu mulai voting (startAt) harus berada di masa depan.' }
+  }
   if (startAt >= endAt) {
-    return { valid: false, reason: 'startAt must be before endAt' }
+    return { valid: false, reason: 'Waktu mulai voting (startAt) harus sebelum waktu selesai (endAt).' }
   }
   if (endAt > resultPublishedAt) {
-    return { valid: false, reason: 'resultPublishedAt must be >= endAt' }
+    return { valid: false, reason: 'Waktu pengumuman hasil (resultPublishedAt) harus sama atau setelah waktu selesai (endAt).' }
   }
   return { valid: true }
 }

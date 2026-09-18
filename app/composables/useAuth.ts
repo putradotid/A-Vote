@@ -30,9 +30,24 @@ export const useAuth = () => {
       user.value = credential.user
       return { success: true }
     } catch (error: unknown) {
-      const message = error instanceof Error
-        ? error.message
-        : 'Login gagal. Periksa email dan password Anda.'
+      let message = 'Login gagal. Periksa email dan password Anda.'
+
+      const errorCode = error && typeof error === 'object' && 'code' in error
+        ? String((error as { code: unknown }).code)
+        : ''
+
+      const errorText = error instanceof Error ? error.message : ''
+
+      if (
+        errorCode === 'auth/invalid-credential' ||
+        errorCode === 'auth/user-not-found' ||
+        errorCode === 'auth/wrong-password' ||
+        errorText.includes('auth/invalid-credential')
+      ) {
+        message = 'Email atau password salah.'
+      } else if (errorText) {
+        message = errorText
+      }
 
       return {
         success: false,
