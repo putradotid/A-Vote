@@ -291,3 +291,39 @@ export interface AddVoterRequest {
   nim: string
 }
 
+// ─── Voter Portal API Request/Response shapes ────────────────────────────────
+
+export interface VoterElectionItem {
+  id: string
+  title: string
+  description: string
+  startAt: string | null
+  endAt: string | null
+  resultPublishedAt: string | null
+  computedState: ElectionState
+  isRegistered: boolean
+  hasVoted: boolean
+}
+
+export interface VoterElectionListResponse {
+  elections: VoterElectionItem[]
+}
+
+export interface VoterElectionDetailResponse {
+  election: VoterElectionItem
+}
+
+export interface VoterCandidateItem {
+  id: string
+  electionId: string
+  number: number
+  name: string
+  photoUrl: string | null
+  vision: string
+  mission: string
+}
+
+export interface VoterCandidateListResponse {
+  candidates: VoterCandidateItem[]
+}
+

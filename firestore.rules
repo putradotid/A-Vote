@@ -2,9 +2,52 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Phase 1 stub
-    // Full security rules will be implemented in Phase 5
-    // Default deny all client access. Admin SDK bypasses this.
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Users collection:
+    // Voters can read own record. Writes are server-only via Admin SDK.
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if false;
+    }
+
+    // Elections collection:
+    // Authenticated users can read elections metadata. Writes are server-only.
+    match /elections/{electionId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+
+      // Candidates subcollection:
+      // Authenticated users can read candidates. Writes are server-only.
+      match /candidates/{candidateId} {
+        allow read: if isAuthenticated();
+        allow write: if false;
+      }
+    }
+
+    // Voters collection:
+    // Voters can read only their own voter record. Writes are server-only.
+    match /voters/{voterId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+
+    // Ballots collection:
+    // CRITICAL: DENIED for ALL clients (reads and writes).
+    // All ballot creation and aggregation is performed server-side via Firebase Admin SDK.
+    match /ballots/{ballotId} {
+      allow read, write: if false;
+    }
+
+    // Fallback default deny
     match /{document=**} {
       allow read, write: if false;
     }

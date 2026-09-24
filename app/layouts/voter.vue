@@ -14,7 +14,8 @@ const handleLogout = async () => {
     <header class="bg-surface border-b border-border shadow-sm z-10 relative">
       <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <div class="font-bold text-xl text-primary">A-Vote</div>
+          <NuxtLink to="/election" class="font-bold text-xl text-primary hover:opacity-90">A-Vote</NuxtLink>
+          <span class="text-caption bg-blue-50 text-primary border border-blue-200 px-2 py-0.5 rounded-full font-semibold">Portal Pemilih</span>
         </div>
         <div class="flex items-center gap-4">
           <!-- User Profile Stub -->

@@ -69,3 +69,23 @@ export async function requireAdmin(event: H3Event): Promise<DecodedIdToken> {
 
   return decodedToken
 }
+
+/**
+ * Verify ID Token and ensure the user has the 'voter' role in Firestore.
+ * Throws a 403 H3 error if the user is not a registered voter account.
+ */
+export async function requireVoter(event: H3Event): Promise<DecodedIdToken> {
+  const decodedToken = await verifyToken(event)
+
+  const db = useAdminDb()
+  const userDoc = await db.collection('users').doc(decodedToken.uid).get()
+
+  if (!userDoc.exists || userDoc.data()?.role !== 'voter') {
+    throw createError({
+      statusCode: 403,
+      message: 'Forbidden: Voter access required',
+    })
+  }
+
+  return decodedToken
+}
