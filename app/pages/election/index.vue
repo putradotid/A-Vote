@@ -170,6 +170,23 @@ const getBadgeLabel = (state: string): string => {
               Masuk ke Bilik Suara
             </NuxtLink>
 
+            <!-- Button to view results if RESULT_PUBLISHED -->
+            <NuxtLink
+              v-else-if="item.computedState === 'RESULT_PUBLISHED'"
+              :to="`/election/result?electionId=${item.id}`"
+              class="btn-primary text-small text-center flex items-center justify-center gap-1.5"
+            >
+              <span>📊</span>
+              <span>Lihat Hasil</span>
+            </NuxtLink>
+
+            <div
+              v-else-if="item.computedState === 'ENDED'"
+              class="text-caption text-text-muted text-center sm:text-right px-2 py-1"
+            >
+              Menunggu Pengumuman Hasil
+            </div>
+
             <div
               v-else-if="item.hasVoted"
               class="text-caption text-success font-medium text-center sm:text-right px-2 py-1"
