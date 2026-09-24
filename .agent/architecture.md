@@ -170,7 +170,9 @@ Every Nuxt Server API route that performs a privileged operation must:
 | GET | `/api/admin/elections/[id]` | Get single election details | Admin ID Token |
 | PATCH | `/api/admin/elections/[id]` | Update election (dates, status) | Admin ID Token |
 | DELETE | `/api/admin/elections/[id]` | Delete election (DRAFT/CANCELLED only) | Admin ID Token |
+| GET | `/api/admin/elections/[id]/voters` | Get all voters for an election | Admin ID Token |
 | POST | `/api/admin/elections/[id]/voters` | Add voter to election | Admin ID Token |
+| GET | `/api/admin/elections/[id]/voters/[vid]` | Get voter detail | Admin ID Token |
 | DELETE | `/api/admin/elections/[id]/voters/[vid]` | Remove voter from election | Admin ID Token |
 | GET | `/api/admin/elections/[id]/candidates` | Get all candidates for an election | Admin ID Token |
 | POST | `/api/admin/elections/[id]/candidates` | Add candidate | Admin ID Token |
@@ -358,7 +360,9 @@ app/
 │   │       │       ├── index.patch.ts
 │   │       │       ├── index.delete.ts
 │   │       │       ├── voters/
+│   │       │       │   ├── index.get.ts
 │   │       │       │   ├── index.post.ts
+│   │       │       │   ├── [vid].get.ts
 │   │       │       │   └── [vid].delete.ts
 │   │       │       └── candidates/
 │   │       │           ├── index.get.ts
@@ -370,6 +374,7 @@ app/
 │       ├── firebase-admin.ts      # Firebase Admin SDK singleton
 │       ├── verify-token.ts        # ID Token verification helper
 │       ├── candidate-helpers.ts   # Candidate document serialization helper
+│       ├── voter-helpers.ts       # Voter document serialization & user profile join helper
 │       └── election-state.ts      # Server-side election state helper
 ├── types/
 │   └── index.ts                   # All shared TypeScript interfaces

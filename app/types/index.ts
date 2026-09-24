@@ -257,3 +257,37 @@ export interface UpdateCandidateRequest {
   mission?: string
 }
 
+// ─── Voter Admin API Request/Response shapes ────────────────────────────────
+
+/**
+ * Serialized voter record returned by admin API.
+ * Includes denormalized name/nim from users collection for display purposes.
+ * Never includes dateOfBirthHash or other sensitive credentials.
+ */
+export interface VoterListItem {
+  id: string
+  electionId: string
+  userId: string
+  /** Denormalized from users/{userId}.nim — for admin display only. */
+  nim: string
+  /** Denormalized from users/{userId}.name — for admin display only. */
+  name: string
+  hasVoted: boolean
+  createdAt: string
+}
+
+export interface VoterListResponse {
+  voters: VoterListItem[]
+  totalCount: number
+  votedCount: number
+}
+
+export interface VoterDetailResponse {
+  voter: VoterListItem
+}
+
+export interface AddVoterRequest {
+  /** NIM of the student to register as voter for this election. */
+  nim: string
+}
+

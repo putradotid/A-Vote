@@ -1,8 +1,9 @@
 import { requireAdmin } from '../../../../../utils/verify-token'
 import { useAdminDb } from '../../../../../utils/firebase-admin'
-import { formatElectionDoc } from '../../../../../utils/election-state'
+import { formatVoterDoc } from '../../../../../utils/voter-helpers'
+import type { VoterDetailResponse } from '~/types'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<VoterDetailResponse> => {
   await requireAdmin(event)
 
   const electionId = getRouterParam(event, 'id')
@@ -25,19 +26,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Check election lifecycle — only DRAFT or SCHEDULED allowed
-  const formattedElection = formatElectionDoc(electionDoc)
-  const currentState = formattedElection.computedState
-
-  if (currentState !== 'DRAFT' && currentState !== 'SCHEDULED') {
-    throw createError({
-      statusCode: 400,
-      message: `Pemilih hanya dapat dihapus saat pemilihan berstatus DRAFT atau SCHEDULED. Status saat ini: ${currentState}`,
-    })
-  }
-
-  const voterRef = db.collection('voters').doc(voterId)
-  const voterDoc = await voterRef.get()
+  const voterDoc = await db.collection('voters').doc(voterId).get()
 
   if (!voterDoc.exists) {
     throw createError({
@@ -55,17 +44,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Prevent deletion if voter has already voted
-  if (voterData.hasVoted === true) {
-    throw createError({
-      statusCode: 400,
-      message: 'Pemilih yang telah memberikan suara tidak dapat dihapus.',
-    })
-  }
-
-  await voterRef.delete()
-
   return {
-    success: true,
+    voter: await formatVoterDoc(voterDoc),
   }
 })
