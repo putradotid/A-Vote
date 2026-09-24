@@ -219,3 +219,41 @@ export interface UpdateElectionRequest {
   resultPublishedAt?: string | null
   status?: ElectionAdminStatus
 }
+
+// ─── Candidate Admin API Request/Response shapes ───────────────────────────
+
+export interface CandidateListItem {
+  id: string
+  electionId: string
+  number: number
+  name: string
+  photoUrl: string | null
+  vision: string
+  mission: string
+  createdAt: string
+}
+
+export interface CandidateListResponse {
+  candidates: CandidateListItem[]
+}
+
+export interface CandidateDetailResponse {
+  candidate: CandidateListItem
+}
+
+export interface CreateCandidateRequest {
+  number: number
+  name: string
+  photoUrl?: string | null
+  vision: string
+  mission: string
+}
+
+export interface UpdateCandidateRequest {
+  number?: number
+  name?: string
+  photoUrl?: string | null
+  vision?: string
+  mission?: string
+}
+

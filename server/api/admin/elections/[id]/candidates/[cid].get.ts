@@ -1,8 +1,9 @@
 import { requireAdmin } from '../../../../../utils/verify-token'
 import { useAdminDb } from '../../../../../utils/firebase-admin'
-import { formatElectionDoc } from '../../../../../utils/election-state'
+import { formatCandidateDoc } from '../../../../../utils/candidate-helpers'
+import type { CandidateDetailResponse } from '~/types'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<CandidateDetailResponse> => {
   await requireAdmin(event)
 
   const electionId = getRouterParam(event, 'id')
@@ -25,18 +26,12 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const formattedElection = formatElectionDoc(electionDoc)
-  const currentState = formattedElection.computedState
-
-  if (currentState !== 'DRAFT' && currentState !== 'SCHEDULED') {
-    throw createError({
-      statusCode: 400,
-      message: `Kandidat hanya dapat dihapus saat pemilihan berstatus DRAFT atau SCHEDULED. Status saat ini: ${currentState}`,
-    })
-  }
-
-  const candidateRef = db.collection('elections').doc(electionId).collection('candidates').doc(candidateId)
-  const candidateDoc = await candidateRef.get()
+  const candidateDoc = await db
+    .collection('elections')
+    .doc(electionId)
+    .collection('candidates')
+    .doc(candidateId)
+    .get()
 
   if (!candidateDoc.exists) {
     throw createError({
@@ -45,9 +40,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  await candidateRef.delete()
-
   return {
-    success: true,
+    candidate: formatCandidateDoc(candidateDoc),
   }
 })
